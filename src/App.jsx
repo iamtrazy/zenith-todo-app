@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar, Typography, Container } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Container,
+  Button,
+  Box,
+} from "@mui/material";
 import TaskForm from "./components/TaskForm";
 import TaskList from "./components/TaskList";
+import CalendarView from "./components/CalendarView";
 
 // Mock API for development when electronAPI is not available
 const mockAPI = {
   getTasks: async () => {
     // Return mock data for development
     return [
-      { id: 1, title: "Sample Task 1", dueDate: "2024-01-15", completed: false },
+      {
+        id: 1,
+        title: "Sample Task 1",
+        dueDate: "2024-01-15",
+        completed: false,
+      },
       { id: 2, title: "Sample Task 2", dueDate: "2024-01-20", completed: true },
     ];
   },
@@ -37,6 +50,7 @@ const getAPI = () => {
 
 function App() {
   const [tasks, setTasks] = useState([]);
+  const [view, setView] = useState("list"); // 'list' or 'calendar'
 
   useEffect(() => {
     const getTasks = async () => {
@@ -90,12 +104,26 @@ function App() {
         </Toolbar>
       </AppBar>
       <Container style={{ marginTop: "2rem" }}>
-        <TaskForm onAddTask={handleAddTask} />
-        <TaskList
-          tasks={tasks}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
-        />
+        <Box sx={{ mb: 2, display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="outlined"
+            onClick={() => setView(view === "list" ? "calendar" : "list")}
+          >
+            {view === "list" ? "Calendar View" : "List View"}
+          </Button>
+        </Box>
+        {view === "list" ? (
+          <>
+            <TaskForm onAddTask={handleAddTask} />
+            <TaskList
+              tasks={tasks}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+            />
+          </>
+        ) : (
+          <CalendarView tasks={tasks} />
+        )}
       </Container>
     </>
   );
