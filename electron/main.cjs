@@ -53,11 +53,13 @@ ipcMain.handle("get-tasks", async () => {
 ipcMain.handle("add-task", async (event, task) => {
   return new Promise((resolve, reject) => {
     db.run(
-      "INSERT INTO tasks (title, dueDate) VALUES (?, ?)",
-      [task.title, task.dueDate],
+      "INSERT INTO tasks (title, dueDate, completed) VALUES (?, ?, ?)",
+      [task.title, task.dueDate, 0],
       function (err) {
-        if (err) reject(err);
-        resolve({ id: this.lastID, ...task });
+        if (err) {
+          return reject(err);
+        }
+        resolve({ id: this.lastID, ...task, completed: 0 });
       }
     );
   });

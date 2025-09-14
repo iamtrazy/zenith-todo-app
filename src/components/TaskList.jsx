@@ -80,8 +80,8 @@ const TaskList = ({ tasks, onUpdateTask, onDeleteTask }) => {
             Pending Tasks ({pendingTasks.length})
           </Typography>
           {pendingTasks.map((task, index) => (
-            <Fade in={true} timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
-              <div key={task.id}>
+            <Fade key={task.id} in={true} timeout={300} style={{ transitionDelay: `${index * 100}ms` }}>
+              <div>
                 <TaskItem
                   task={task}
                   onUpdateTask={onUpdateTask}
@@ -109,8 +109,8 @@ const TaskList = ({ tasks, onUpdateTask, onDeleteTask }) => {
             Completed ({completedTasks.length})
           </Typography>
           {completedTasks.map((task, index) => (
-            <Fade in={true} timeout={300} style={{ transitionDelay: `${index * 50}ms` }}>
-              <div key={task.id}>
+            <Fade key={task.id} in={true} timeout={300} style={{ transitionDelay: `${index * 50}ms` }}>
+              <div>
                 <TaskItem
                   task={task}
                   onUpdateTask={onUpdateTask}
