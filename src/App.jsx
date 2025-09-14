@@ -98,12 +98,14 @@ function App() {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="static" className="app-bar">
         <Toolbar>
-          <Typography variant="h6">Zenith To-Do</Typography>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Zenith To-Do
+          </Typography>
         </Toolbar>
       </AppBar>
-      <Container style={{ marginTop: "2rem" }}>
+      <Container className="container">
         <Box sx={{ mb: 2, display: "flex", justifyContent: "flex-end" }}>
           <Button
             variant="outlined"

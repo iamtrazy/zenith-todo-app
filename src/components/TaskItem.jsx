@@ -54,6 +54,7 @@ function TaskItem({ task, onUpdateTask, onDeleteTask }) {
 
   return (
     <ListItem
+      className="task-item"
       secondaryAction={
         <>
           <IconButton edge="end" onClick={() => setIsEditing(true)}>
