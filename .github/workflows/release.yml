@@ -72,7 +72,7 @@ jobs:
 
       - name: Build Electron App (macOS)
         if: runner.os == 'macOS'
-        run: npx electron-builder --mac dmg zip --x64 --arm64 --publish never
+        run: npx electron-builder --mac dmg --x64 --arm64 --publish never
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -116,5 +116,7 @@ jobs:
             artifacts/*
             !artifacts/*.yml
             !artifacts/*.blockmap
+            !artifacts/*-mac.zip
+            !artifacts/*-arm64-mac.zip
           draft: false
           prerelease: false

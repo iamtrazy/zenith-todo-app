@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
+import FullscreenToggle from './FullscreenToggle';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
@@ -26,6 +27,8 @@ const CustomAppBar = ({ view, onViewChange }) => {
         backdropFilter: 'blur(20px)',
         borderBottom: `1px solid ${colors.border}`,
         boxShadow: shadows.small,
+        // Add drag region for frameless window
+        WebkitAppRegion: 'drag',
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -91,6 +94,7 @@ const CustomAppBar = ({ view, onViewChange }) => {
               fontWeight: 600,
               fontSize: { xs: '0.75rem', sm: '0.875rem' },
               minWidth: { xs: 'auto', sm: 'auto' },
+              WebkitAppRegion: 'no-drag', // Prevent dragging on interactive elements
               ...(view === 'list' ? {
                 background: gradients.primary,
                 boxShadow: shadows.medium,
@@ -126,6 +130,7 @@ const CustomAppBar = ({ view, onViewChange }) => {
               fontWeight: 600,
               fontSize: { xs: '0.75rem', sm: '0.875rem' },
               minWidth: { xs: 'auto', sm: 'auto' },
+              WebkitAppRegion: 'no-drag', // Prevent dragging on interactive elements
               ...(view === 'calendar' ? {
                 background: gradients.primary,
                 boxShadow: shadows.medium,
@@ -149,6 +154,7 @@ const CustomAppBar = ({ view, onViewChange }) => {
               C
             </Box>
           </Button>
+          <FullscreenToggle />
           <ThemeToggle />
         </Box>
       </Toolbar>

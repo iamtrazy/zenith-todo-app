@@ -2,10 +2,18 @@ const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const db = require("./database.cjs");
 
+// Enable Wayland support on Linux
+if (process.platform === 'linux') {
+  app.commandLine.appendSwitch('--enable-features', 'UseOzonePlatform');
+  app.commandLine.appendSwitch('--ozone-platform-hint', 'auto');
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    frame: false, // Remove the title bar
+    titleBarStyle: 'hidden', // Hide title bar but keep window controls on macOS
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -85,4 +93,38 @@ ipcMain.handle("delete-task", async (event, id) => {
       resolve(id);
     });
   });
+});
+
+// Window control handlers
+ipcMain.handle("window-minimize", () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) win.minimize();
+});
+
+ipcMain.handle("window-maximize", () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+  }
+});
+
+ipcMain.handle("window-close", () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) win.close();
+});
+
+ipcMain.handle("window-toggle-fullscreen", () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    win.setFullScreen(!win.isFullScreen());
+  }
+});
+
+ipcMain.handle("window-is-fullscreen", () => {
+  const win = BrowserWindow.getFocusedWindow();
+  return win ? win.isFullScreen() : false;
 });

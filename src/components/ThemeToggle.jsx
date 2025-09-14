@@ -18,6 +18,7 @@ const ThemeToggle = () => {
             : 'rgba(0, 0, 0, 0.05)',
           border: `1px solid ${colors.border}`,
           borderRadius: 2,
+          WebkitAppRegion: 'no-drag', // Prevent dragging on interactive elements
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             transform: 'scale(1.05)',
