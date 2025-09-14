@@ -31,7 +31,10 @@ jobs:
 
       - name: Update package.json version from tag
         if: github.ref_type == 'tag'
-        run: pnpm version ${{ github.ref_name#v }} --no-git-tag-version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          CLEAN_VERSION="${VERSION#v}"
+          pnpm version "$CLEAN_VERSION" --no-git-tag-version
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
