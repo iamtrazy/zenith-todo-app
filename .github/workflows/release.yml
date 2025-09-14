@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-2022]
+        os: [ubuntu-latest, windows-2022, macos-latest]
 
     steps:
       - name: Checkout code
@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Update package.json version from tag
         if: github.ref_type == 'tag'
@@ -58,6 +58,21 @@ jobs:
       - name: Build Electron App (Linux)
         if: runner.os == 'Linux'
         run: npx electron-builder --linux zip appimage --publish never
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Rename Linux Zip
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          VERSION=$(jq -r .version package.json)
+          if [ -f "dist/electron/zenith-todo-app-${VERSION}.zip" ]; then
+            mv "dist/electron/zenith-todo-app-${VERSION}.zip" "dist/electron/Zenith.To-Do-${VERSION}-Native-Linux.zip"
+          fi
+
+      - name: Build Electron App (macOS)
+        if: runner.os == 'macOS'
+        run: npx electron-builder --mac dmg zip --x64 --arm64 --publish never
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -97,6 +112,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
-          files: artifacts/*
+          files: |
+            artifacts/*
+            !artifacts/*.yml
+            !artifacts/*.blockmap
           draft: false
           prerelease: false
