@@ -30,10 +30,10 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgconf-2-4 libgtk-3-0 libnss3 libasound2
+          sudo apt-get install -y libfuse2 libgtk-3-0 libnss3 libasound2 libxtst6
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Build React App
         run: pnpm build
@@ -67,13 +67,12 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Get version from package.json
         id: get_version
         run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
-        working-directory: ${{ github.workspace }}
-        # This step needs checkout to access package.json, so we need to add it.
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
