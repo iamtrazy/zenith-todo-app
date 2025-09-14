@@ -47,11 +47,26 @@
     "appId": "com.zenith-todo.app",
     "productName": "Zenith To-Do",
     "files": [
-      "dist/**/*",
+      "dist/renderer/**/*",
       "electron/**/*"
     ],
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "assets",
+      "output": "dist/electron"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png",
+      "category": "Office"
     }
   }
 }
