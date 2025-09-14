@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-2022]
 
     steps:
       - name: Checkout code
@@ -30,7 +30,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libfuse2 libgtk-3-0 libnss3 libasound2 libxtst6
+          sudo apt-get install -y libfuse2 libgtk-3-0 libnss3 libasound2t64 libxtst6
 
       - name: Install dependencies
         run: pnpm install
