@@ -1,9 +1,7 @@
-name: Build and Release
+name: Manual Build and Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,14 +9,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 8
 
@@ -32,7 +30,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgconf-2-4 libatk1.0-0 libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libgbm-dev libnss3-dev libxss1
+          sudo apt-get install -y libgconf-2-4 libgtk-3-0 libnss3 libasound2
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -40,8 +38,15 @@ jobs:
       - name: Build React App
         run: pnpm build
 
-      - name: Build Electron App
-        run: npx electron-builder
+      - name: Build Electron App (Windows)
+        if: runner.os == 'Windows'
+        run: npx electron-builder --windows
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Electron App (Linux)
+        if: runner.os == 'Linux'
+        run: npx electron-builder --linux zip appimage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -50,13 +55,9 @@ jobs:
         with:
           name: ${{ runner.os }}-build
           path: |
-            dist/*.AppImage
-            dist/*.dmg
             dist/*.exe
+            dist/*.AppImage
             dist/*.zip
-            dist/latest-linux.yml
-            dist/latest-mac.yml
-            dist/latest.yml
 
   release:
     name: Create Release
@@ -66,6 +67,14 @@ jobs:
       contents: write
 
     steps:
+      - name: Get version from package.json
+        id: get_version
+        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+        working-directory: ${{ github.workspace }}
+        # This step needs checkout to access package.json, so we need to add it.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -73,7 +82,8 @@ jobs:
           merge-multiple: true
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.get_version.outputs.version }}
           files: |
             artifacts/*
