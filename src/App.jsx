@@ -1,42 +1,41 @@
 import React, { useState, useEffect } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Container,
-  Button,
-  Box,
-} from "@mui/material";
-import TaskForm from "./components/TaskForm";
+import { Container } from "@mui/material";
+
+// Contexts
+import { ThemeProvider } from "./contexts/ThemeContext";
+
+// Components
+import CustomAppBar from "./components/AppBar";
 import TaskList from "./components/TaskList";
+import TaskForm from "./components/TaskForm";
+import FloatingActionButton from "./components/FloatingActionButton";
+import BackgroundArt from "./components/BackgroundArt";
 import CalendarView from "./components/CalendarView";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 // Mock API for development when electronAPI is not available
 const mockAPI = {
-  getTasks: async () => {
-    // Return mock data for development
-    return [
-      {
-        id: 1,
-        title: "Sample Task 1",
-        dueDate: "2024-01-15",
-        completed: false,
-      },
-      { id: 2, title: "Sample Task 2", dueDate: "2024-01-20", completed: true },
-    ];
-  },
-  addTask: async (task) => {
-    // Simulate adding a task
-    return { id: Date.now(), ...task, completed: false };
-  },
-  updateTask: async (task) => {
-    // Simulate updating a task
-    return task;
-  },
-  deleteTask: async (id) => {
-    // Simulate deleting a task
-    return id;
-  },
+  getTasks: async () => [
+    {
+      id: 1,
+      title: "Sample Task 1",
+      dueDate: "2024-01-15",
+      completed: false,
+    },
+    { 
+      id: 2, 
+      title: "Sample Task 2", 
+      dueDate: "2024-01-20", 
+      completed: true 
+    },
+  ],
+  addTask: async (task) => ({ 
+    id: Date.now(), 
+    ...task, 
+    completed: false 
+  }),
+  updateTask: async (task) => task,
+  deleteTask: async (id) => id,
 };
 
 // Get the appropriate API (electronAPI if available, mockAPI otherwise)
@@ -49,23 +48,31 @@ const getAPI = () => {
 };
 
 function App() {
+  // State management
   const [tasks, setTasks] = useState([]);
   const [view, setView] = useState("list"); // 'list' or 'calendar'
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load tasks on component mount
   useEffect(() => {
-    const getTasks = async () => {
+    const loadTasks = async () => {
       try {
+        setIsLoading(true);
         const api = getAPI();
         const tasksFromDb = await api.getTasks();
         setTasks(tasksFromDb);
       } catch (error) {
         console.error("Error fetching tasks:", error);
         setTasks([]);
+      } finally {
+        setIsLoading(false);
       }
     };
-    getTasks();
+    loadTasks();
   }, []);
 
+  // Task management handlers
   const handleAddTask = async (task) => {
     try {
       const api = getAPI();
@@ -97,37 +104,42 @@ function App() {
   };
 
   return (
-    <>
-      <AppBar position="static" className="app-bar">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Zenith To-Do
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Container className="container">
-        <Box sx={{ mb: 2, display: "flex", justifyContent: "flex-end" }}>
-          <Button
-            variant="outlined"
-            onClick={() => setView(view === "list" ? "calendar" : "list")}
-          >
-            {view === "list" ? "Calendar View" : "List View"}
-          </Button>
-        </Box>
-        {view === "list" ? (
-          <>
-            <TaskForm onAddTask={handleAddTask} />
-            <TaskList
-              tasks={tasks}
-              onUpdateTask={handleUpdateTask}
-              onDeleteTask={handleDeleteTask}
-            />
-          </>
+    <ThemeProvider>
+      <BackgroundArt />
+      <CustomAppBar view={view} onViewChange={setView} />
+      <Container 
+        maxWidth={view === "calendar" ? "lg" : "md"} 
+        sx={{ 
+          py: { xs: 2, sm: 4 }, 
+          px: { xs: 2, sm: 3 },
+          position: 'relative', 
+          zIndex: 1 
+        }}
+      >
+        {isLoading ? (
+          <LoadingSpinner message="Loading your tasks..." />
+        ) : view === "list" ? (
+          <TaskList
+            tasks={tasks}
+            onUpdateTask={handleUpdateTask}
+            onDeleteTask={handleDeleteTask}
+          />
         ) : (
           <CalendarView tasks={tasks} />
         )}
       </Container>
-    </>
+      
+      {view === "list" && (
+        <>
+          <FloatingActionButton onClick={() => setIsTaskFormOpen(true)} />
+          <TaskForm
+            open={isTaskFormOpen}
+            onClose={() => setIsTaskFormOpen(false)}
+            onAddTask={handleAddTask}
+          />
+        </>
+      )}
+    </ThemeProvider>
   );
 }
 
