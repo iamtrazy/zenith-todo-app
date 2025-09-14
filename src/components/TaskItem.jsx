@@ -9,10 +9,6 @@ import {
   Fade,
   Slide,
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import moment from 'moment';
 import { useTheme } from '../contexts/ThemeContext';
 import Card from './Card';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,10 +21,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 
 const TaskItem = ({ task, onUpdateTask, onDeleteTask }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedTask, setEditedTask] = useState({ 
-    ...task, 
-    dueDate: task.dueDate ? moment(task.dueDate) : null 
-  });
+  const [editedTask, setEditedTask] = useState({ ...task });
   const [isDeleting, setIsDeleting] = useState(false);
   const { colors, gradients, shadows, isDarkMode } = useTheme();
 
@@ -37,19 +30,12 @@ const TaskItem = ({ task, onUpdateTask, onDeleteTask }) => {
   };
 
   const handleUpdate = () => {
-    const formattedTask = {
-      ...editedTask,
-      dueDate: editedTask.dueDate ? editedTask.dueDate.format('YYYY-MM-DD') : ''
-    };
-    onUpdateTask(formattedTask);
+    onUpdateTask(editedTask);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setEditedTask({ 
-      ...task, 
-      dueDate: task.dueDate ? moment(task.dueDate) : null 
-    });
+    setEditedTask({ ...task });
     setIsEditing(false);
   };
 
@@ -117,105 +103,77 @@ const TaskItem = ({ task, onUpdateTask, onDeleteTask }) => {
                 },
               }}
             />
-            <LocalizationProvider dateAdapter={AdapterMoment}>
-              <DatePicker
-                value={editedTask.dueDate}
-                onChange={(newValue) => setEditedTask({ ...editedTask, dueDate: newValue })}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    variant: 'outlined',
-                    sx: {
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: 2,
-                        backgroundColor: colors.surface,
-                        color: colors.text,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.primary,
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: colors.primary,
-                          borderWidth: 2,
-                        },
-                        '& .MuiOutlinedInput-input': {
-                          color: `${colors.text} !important`,
-                          '&::placeholder': {
-                            color: `${colors.textSecondary} !important`,
-                            opacity: 1,
-                          },
-                        },
-                        '& .MuiInputAdornment-root': {
-                          '& .MuiIconButton-root': {
-                            color: `${colors.text} !important`,
-                            '&:hover': {
-                              backgroundColor: 'transparent',
-                            },
-                          },
-                          '& .MuiSvgIcon-root': {
-                            color: `${colors.text} !important`,
-                          },
-                        },
-                      },
-                      '& .MuiInputLabel-root': {
-                        color: `${colors.textSecondary} !important`,
-                        '&.Mui-focused': {
-                          color: `${colors.primary} !important`,
-                        },
-                      },
-                      // Force override for DatePicker specific elements
-                      '& .MuiInputBase-input': {
-                        color: `${colors.text} !important`,
-                      },
-                      '& .MuiInputBase-root': {
-                        color: `${colors.text} !important`,
-                      },
-                      '& input': {
-                        color: `${colors.text} !important`,
-                      },
-                      '& .MuiInputAdornment-root .MuiSvgIcon-root': {
-                        color: `${colors.text} !important`,
-                      },
+            <TextField
+              fullWidth
+              type="date"
+              variant="outlined"
+              value={editedTask.dueDate}
+              onChange={(e) => setEditedTask({ ...editedTask, dueDate: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  backgroundColor: colors.surface,
+                  color: colors.text,
+                '& .MuiOutlinedInput-input': {
+                  color: colors.text,
+                  '&::-webkit-calendar-picker-indicator': {
+                    filter: isDarkMode ? 'invert(1) brightness(2)' : 'none',
+                    cursor: 'pointer',
+                    opacity: 0.8,
+                    '&:hover': {
+                      opacity: 1,
                     },
                   },
-                  popper: {
-                    sx: {
-                      '& .MuiPaper-root': {
-                        backgroundColor: colors.surface,
-                        color: colors.text,
-                        border: `1px solid ${colors.border}`,
-                        borderRadius: 2,
-                        boxShadow: shadows.medium,
-                      },
-                      '& .MuiPickersCalendarHeader-root': {
-                        color: colors.text,
-                      },
-                      '& .MuiPickersDay-root': {
-                        color: colors.text,
-                        '&:hover': {
-                          backgroundColor: `${colors.primary}20`,
-                        },
-                        '&.Mui-selected': {
-                          backgroundColor: colors.primary,
-                          color: 'white',
-                          '&:hover': {
-                            backgroundColor: colors.primary,
-                          },
-                        },
-                      },
-                      '& .MuiDayCalendar-weekContainer': {
-                        color: colors.text,
-                      },
-                      '& .MuiPickersCalendarHeader-label': {
-                        color: colors.text,
-                      },
-                    },
+                  '&::-webkit-datetime-edit': {
+                    color: colors.text,
                   },
-                }}
-              />
-            </LocalizationProvider>
+                  '&::-webkit-datetime-edit-fields-wrapper': {
+                    color: colors.text,
+                  },
+                  '&::-webkit-datetime-edit-text': {
+                    color: colors.text,
+                  },
+                  '&::-webkit-datetime-edit-month-field': {
+                    color: colors.text,
+                  },
+                  '&::-webkit-datetime-edit-day-field': {
+                    color: colors.text,
+                  },
+                  '&::-webkit-datetime-edit-year-field': {
+                    color: colors.text,
+                  },
+                },
+                '& .MuiInputLabel-root': {
+                  color: colors.textSecondary,
+                  '&.Mui-focused': {
+                    color: colors.primary,
+                  },
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: colors.border,
+                },
+              },
+              // Dark mode styling for the date picker popup
+              '& .MuiPickersPopper-root': {
+                backgroundColor: colors.surface,
+                '& .MuiPaper-root': {
+                  backgroundColor: colors.surface,
+                  color: colors.text,
+                },
+              },
+              // Additional webkit styling for better dark mode support
+              '& input[type="date"]': {
+                colorScheme: isDarkMode ? 'dark' : 'light',
+                backgroundColor: colors.surface,
+                color: colors.text,
+                '&::-webkit-calendar-picker-indicator': {
+                  filter: isDarkMode ? 'invert(1) brightness(2)' : 'none',
+                  cursor: 'pointer',
+                },
+              },
+            }}
+            />
             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
               <IconButton onClick={handleCancel} color="error">
                 <CancelIcon />
