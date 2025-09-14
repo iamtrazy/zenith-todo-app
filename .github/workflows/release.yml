@@ -43,13 +43,13 @@ jobs:
 
       - name: Build Electron App (Windows)
         if: runner.os == 'Windows'
-        run: npx electron-builder --windows
+        run: npx electron-builder --windows --publish never
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Electron App (Linux)
         if: runner.os == 'Linux'
-        run: npx electron-builder --linux zip appimage
+        run: npx electron-builder --linux zip appimage --publish never
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -70,9 +70,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get version from package.json
+      - name: Get Release Version
         id: get_version
-        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=v$(jq -r .version package.json)" >> $GITHUB_ENV
+          fi
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -83,6 +88,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          files: |
-            artifacts/*
+          tag_name: ${{ env.VERSION }}
+          files: artifacts/*
+          draft: false
+          prerelease: false
