@@ -20,7 +20,7 @@ function createWindow() {
     // Open the DevTools.
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, "..", "dist", "index.html"));
+    win.loadFile(path.join(app.getAppPath(), "dist", "index.html"));
   }
 }
 
